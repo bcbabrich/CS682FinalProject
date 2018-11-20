@@ -91,7 +91,7 @@ def get_point(k, refpt, samples, width, height, a, r, nx, ny, cells):
     # We failed to find a suitable point in the vicinity of refpt.
     return False
 
-def getPoints(r, desired_num_points, width, height) :
+def get_Poisson_Points(r, desired_num_points, width, height) :
     ###################### PARAMETERS #######
     
     # Choose up to k points around each reference point as candidates for a new
