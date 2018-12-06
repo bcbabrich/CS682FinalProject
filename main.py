@@ -1,5 +1,6 @@
 from nn import runExperiment
 from poisson_disc_generalized import Grid
+from auto_manual_search import run_auto_manual
 import random
 
 # GENERATE RANDOM BATCH
@@ -76,30 +77,52 @@ def generate_Poisson_batch(desired_num_points, hyper_parameter_range) :
 ##############################################################
 # define hyperparameters ... using "hyper-hyperparameters"
 hyper_parameter_range = 1000
-desired_num_points = 20 # how many points we can "afford" to test for
-'''
+desired_num_points = 100 # how many points we can "afford" to test for
+
 # generate completely random points
 random_points = generate_random_batch(desired_num_points, hyper_parameter_range)
 
+# create a file to write results to
+results = open('results.txt','w')
+
 # run experiment with randomly generated points
 print('STARTING RANDOM EXPERIMENT')
-test_accuracy, best_learning_rate, best_hidden_size = runExperiment(random_points, desired_num_points)
+results.write('STARTING RANDOM EXPERIMENT\n')
+test_accuracy, best_point = runExperiment(random_points, desired_num_points, auto_manual='')
 
 # print results 
 print('RANDOM EXPERIMENT DONE.')
-print('test_accuracy: ',test_accuracy,'%')
-print('best_learning_rate',best_learning_rate)
-print('best_hidden_size',best_hidden_size)
-'''
+results.write('RANDOM EXPERIMENT DONE.\n')
+print('test_accuracy: ' + str(test_accuracy) + '%\n')
+results.write('test_accuracy: ' + str(test_accuracy) +'%\n')
+print('best point',best_point)
+results.write('best point ' + str(best_point) + '\n')
+
 # generate poisson sampling
 print('STARTING POISSON EXPERIMENT')
+results.write('STARTING POISSON EXPERIMENT\n')
 poisson_points = generate_Poisson_batch(desired_num_points, hyper_parameter_range)
 
-# run experiment with randomly generated points
-test_accuracy, best_learning_rate, best_hidden_size = runExperiment(poisson_points, desired_num_points)
+# run experiment with poisson generated points
+test_accuracy, best_point = runExperiment(poisson_points, desired_num_points, auto_manual='')
 
 # print results 
 print('POISSON EXPERIMENT DONE.')
+results.write('POISSON EXPERIMENT DONE.\n')
 print('test_accuracy: ',test_accuracy,'%')
-print('best_learning_rate',best_learning_rate)
-print('best_hidden_size',best_hidden_size)
+results.write('test_accuracy: ' + str(test_accuracy) + '%\n')
+print('best point',best_point)
+results.write('best point ' + str(best_point) + '\n')
+
+# run experiment using auto manual method
+print('STARTING AUTO MANUAL EXPERIMENT')
+results.write('STARTING AUTO MANUAL EXPERIMENT\n')
+test_accuracy, best_point = run_auto_manual(hyper_parameter_range, desired_num_points)
+
+# print results
+print('AUTO MANUAL EXPERIMENT DONE')
+results.write('AUTO MANUAL EXPERIMENT DONE\n')
+print('test accuracy',test_accuracy)
+results.write('test accuracy' + str(test_accuracy) + '\n')
+print('best_point',best_point)
+results.write('best_point' + str(best_point) + '\n')

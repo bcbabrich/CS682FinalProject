@@ -1,0 +1,185 @@
+STARTING POISSON EXPERIMENT
+running experiment with point  (292.891569031539, 44.39552961564074, 575.9224816358891, 153.98668961376157)
+Epoch [1/1], Step [50/104], Loss: 1.8584
+point number 0
+accuracy 35
+learning_rate 0.292891569031539
+hidden_size 44
+batch_size 576
+num_epochs 1
+running experiment with point  (470.19068667176515, 151.81230938903335, 617.3376658574111, 281.2681015408727)
+Epoch [1/2], Step [50/97], Loss: 1.8668
+Epoch [2/2], Step [50/97], Loss: 1.9228
+point number 1
+accuracy 29
+learning_rate 0.47019068667176517
+hidden_size 152
+batch_size 617
+num_epochs 2
+running experiment with point  (306.9649041887411, 176.79646207394154, 595.1369609696253, 36.19153031382615)
+Epoch [1/1], Step [50/100], Loss: 1.5004
+point number 2
+accuracy 51
+learning_rate 0.3069649041887411
+hidden_size 177
+batch_size 595
+num_epochs 1
+running experiment with point  (277.34761349552116, 113.42151521145604, 716.4798692838166, 321.45266895890893)
+Epoch [1/3], Step [50/83], Loss: 1.3506
+Epoch [2/3], Step [50/83], Loss: 1.3541
+Epoch [3/3], Step [50/83], Loss: 0.8575
+point number 3
+accuracy 68
+learning_rate 0.2773476134955212
+hidden_size 113
+batch_size 716
+num_epochs 3
+running experiment with point  (606.1091071909677, 318.61843721799585, 287.8646635008156, 89.29840413632242)
+Epoch [1/1], Step [50/208], Loss: 2.1269
+Epoch [1/1], Step [100/208], Loss: 1.7173
+Epoch [1/1], Step [150/208], Loss: 1.6788
+point number 4
+accuracy 32
+learning_rate 0.6061091071909678
+hidden_size 319
+batch_size 288
+num_epochs 1
+running experiment with point  (362.31728927846484, 166.8414267442007, 617.5617505064336, 180.12420965192405)
+Epoch [1/1], Step [50/97], Loss: 1.7442
+point number 5
+accuracy 41
+learning_rate 0.36231728927846485
+hidden_size 167
+batch_size 618
+num_epochs 1
+running experiment with point  (112.2698665912992, 94.37159954950793, 639.1795019557399, 61.373375139575174)
+Epoch [1/1], Step [50/93], Loss: 0.4493
+point number 6
+accuracy 90
+learning_rate 0.1122698665912992
+hidden_size 94
+batch_size 639
+num_epochs 1
+running experiment with point  (181.29195284614468, 239.32851734808878, 644.955908347513, 173.25632464739655)
+Epoch [1/1], Step [50/93], Loss: 0.8269
+point number 7
+accuracy 82
+learning_rate 0.1812919528461447
+hidden_size 239
+batch_size 645
+num_epochs 1
+running experiment with point  (220.0066651826387, 229.0399162351978, 425.7446664430793, 275.5808614659507)
+Epoch [1/2], Step [50/140], Loss: 0.9338
+Epoch [1/2], Step [100/140], Loss: 0.8078
+Epoch [2/2], Step [50/140], Loss: 0.6836
+Epoch [2/2], Step [100/140], Loss: 0.6073
+point number 8
+accuracy 80
+learning_rate 0.2200066651826387
+hidden_size 229
+batch_size 426
+num_epochs 2
+running experiment with point  (205.81066729759047, 123.41160808958068, 519.1723247499807, 139.7791994780038)
+Epoch [1/1], Step [50/115], Loss: 1.3242
+point number 9
+accuracy 54
+learning_rate 0.20581066729759048
+hidden_size 123
+batch_size 519
+num_epochs 1
+running experiment with point  (157.7014640565718, 21.212912804152282, 601.662925877343, 135.22763598569693)
+Epoch [1/1], Step [50/99], Loss: 1.6045
+point number 10
+accuracy 37
+learning_rate 0.15770146405657182
+hidden_size 21
+batch_size 602
+num_epochs 1
+running experiment with point  (471.26432468344194, 295.84061226995783, 478.4547530388508, 287.4831363592953)
+Epoch [1/2], Step [50/125], Loss: 1.6094
+Epoch [1/2], Step [100/125], Loss: 1.6939
+Epoch [2/2], Step [50/125], Loss: 1.4586
+Epoch [2/2], Step [100/125], Loss: 1.3463
+point number 11
+accuracy 44
+learning_rate 0.4712643246834419
+hidden_size 296
+batch_size 478
+num_epochs 2
+running experiment with point  (503.7050881302697, 264.72807071950854, 394.2648082104872, 168.06294343168858)
+Epoch [1/1], Step [50/152], Loss: 1.9227
+Epoch [1/1], Step [100/152], Loss: 1.6911
+point number 12
+accuracy 39
+learning_rate 0.5037050881302697
+hidden_size 265
+batch_size 394
+num_epochs 1
+running experiment with point  (310.5806408453717, 269.65736003688494, 620.4698177116695, 103.845951211933)
+Epoch [1/1], Step [50/96], Loss: 1.5660
+point number 13
+accuracy 68
+learning_rate 0.3105806408453717
+hidden_size 270
+batch_size 620
+num_epochs 1
+running experiment with point  (101.87158696428308, 273.5708480562188, 796.1374074407153, 164.96753393024187)
+Epoch [1/1], Step [50/75], Loss: 0.4035
+point number 14
+accuracy 90
+learning_rate 0.10187158696428308
+hidden_size 274
+batch_size 796
+num_epochs 1
+running experiment with point  (333.328975216737, 125.54147133036254, 473.0719995930184, 227.2502028208114)
+Epoch [1/2], Step [50/126], Loss: 1.6045
+Epoch [1/2], Step [100/126], Loss: 1.7373
+Epoch [2/2], Step [50/126], Loss: 1.5702
+Epoch [2/2], Step [100/126], Loss: 1.6865
+point number 15
+accuracy 43
+learning_rate 0.333328975216737
+hidden_size 126
+batch_size 473
+num_epochs 2
+running experiment with point  (193.29165566822712, 144.6649640255459, 538.6285226769354, 5.513435268379311)
+Epoch [1/1], Step [50/111], Loss: 1.0486
+point number 16
+accuracy 79
+learning_rate 0.19329165566822712
+hidden_size 145
+batch_size 539
+num_epochs 1
+running experiment with point  (185.91367574246934, 223.10448638861942, 471.2792953464089, 47.85833474625959)
+Epoch [1/1], Step [50/127], Loss: 1.2504
+Epoch [1/1], Step [100/127], Loss: 0.8961
+point number 17
+accuracy 62
+learning_rate 0.18591367574246934
+hidden_size 223
+batch_size 471
+num_epochs 1
+running experiment with point  (552.9674242726626, 336.51277148883554, 481.11464822311837, 223.83552567831288)
+Epoch [1/2], Step [50/124], Loss: 2.0667
+Epoch [1/2], Step [100/124], Loss: 1.7834
+Epoch [2/2], Step [50/124], Loss: 1.6451
+Epoch [2/2], Step [100/124], Loss: 1.7241
+point number 18
+accuracy 41
+learning_rate 0.5529674242726625
+hidden_size 337
+batch_size 481
+num_epochs 2
+running experiment with point  (280.82072528648956, 129.48139764597525, 614.9123975014277, 88.04097616401609)
+Epoch [1/1], Step [50/97], Loss: 1.7004
+point number 19
+accuracy 42
+learning_rate 0.28082072528648955
+hidden_size 129
+batch_size 615
+num_epochs 1
+testing done. highest accuracy returned was 90
+POISSON EXPERIMENT DONE.
+test_accuracy:  85 %
+best_learning_rate 0.1122698665912992
+best_hidden_size 94

@@ -57,7 +57,7 @@ def get_train_val_split(train_dataset, batch_size) :
     
     return (train_loader, validation_loader)
     
-def runExperiment(points, desired_num_points) :
+def runExperiment(points, desired_num_points, auto_manual) :
     ######### INITIALIAL TRAIN/TEST SPLIT #######
     ## Define our MNIST Datasets (Images and Labels) for training and testing
     train_dataset = dsets.MNIST(root='./data', 
@@ -117,7 +117,7 @@ def runExperiment(points, desired_num_points) :
         
         # train!
         for epoch in range(num_epochs):
-            for i, (images, labels) in enumerate(train_loader):   # Load a batch of images with its (index, data, class)
+            for j, (images, labels) in enumerate(train_loader):   # Load a batch of images with its (index, data, class)
                 images = Variable(images.view(-1, 28*28))         # Convert torch tensor to Variable: change image from a vector of size 784 to a matrix of 28 x 28
                 labels = Variable(labels)
 
@@ -128,9 +128,9 @@ def runExperiment(points, desired_num_points) :
                 optimizer.step()                                  # Optimizer: update the weights of hidden nodes
 
                 
-                if (i+1) % 50 == 0:                              # Logging
+                if j % 200 == 0:                              # Logging
                     print('Epoch [%d/%d], Step [%d/%d], Loss: %.4f'
-                         %(epoch+1, num_epochs, i+1, len(train_dataset)//batch_size, loss.data[0]))
+                         %(epoch, num_epochs, j, len(train_dataset)//batch_size, loss.data))
                 
         
         # we're still searching for the best hyperparameter point
@@ -147,7 +147,8 @@ def runExperiment(points, desired_num_points) :
         accuracy = int((100 * correct / total))
 
         # print results
-        q  = 1 # q corresponds to print frequency
+        
+        q  = 2 # q corresponds to print frequency
         if p % q == 0 :
             print('point number',p)
             print('accuracy',accuracy)
@@ -162,10 +163,16 @@ def runExperiment(points, desired_num_points) :
             highest_accuracy = accuracy
             best_learning_rate = learning_rate
             best_hidden_size = hidden_size
+            best_batch_size = batch_size
+            best_num_epochs = num_epochs
 
         p += 1
     
-    print('testing done. highest accuracy returned was',highest_accuracy)
+    # print('val testing done. highest accuracy returned was',highest_accuracy)
+    
+    # I hope this works!
+    if auto_manual == 'val' :
+        return highest_accuracy
     
     # TEST PHASE OF EXPERIMENT RUN
     # here we run the best point found on our test dataset
@@ -176,7 +183,7 @@ def runExperiment(points, desired_num_points) :
     optimizer = torch.optim.Adam(net.parameters(), lr=best_learning_rate)
     
     # train one last time
-    for epoch in range(num_epochs):
+    for epoch in range(best_num_epochs):
         for i, (images, labels) in enumerate(train_loader):   # Load a batch of images with its (index, data, class)
             images = Variable(images.view(-1, 28*28))         # Convert torch tensor to Variable: change image from a vector of size 784 to a matrix of 28 x 28
             labels = Variable(labels)
@@ -187,11 +194,11 @@ def runExperiment(points, desired_num_points) :
             loss.backward()                                   # Backward pass: compute the weight
             optimizer.step()                                  # Optimizer: update the weights of hidden nodes
 
-            '''
-            if (i+1) % 100 == 0:                              # Logging
+            
+            if (i+1) % 200 == 0:                              # Logging
                 print('Epoch [%d/%d], Step [%d/%d], Loss: %.4f'
                      %(epoch+1, num_epochs, i+1, len(train_dataset)//batch_size, loss.data[0]))
-            '''
+            
     # test on the TEST set
     # get accuracy for TEST set
     correct = 0
@@ -204,5 +211,7 @@ def runExperiment(points, desired_num_points) :
         correct += (predicted == labels).sum()     # Increment the correct count
 
     test_accuracy = int((100 * correct / total))
+    if auto_manual == 'test' :
+        return test_accuracy
 
-    return (test_accuracy, best_learning_rate, best_hidden_size)
+    return test_accuracy, (best_learning_rate, best_hidden_size, best_batch_size, best_num_epochs)
