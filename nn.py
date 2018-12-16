@@ -7,12 +7,24 @@ from torch.autograd import Variable
 import numpy as np
 import random
 from torch.utils.data.sampler import SubsetRandomSampler
+import torch.nn.functional as F  # useful stateless functions
+
+# We need to wrap `flatten` function in a module in order to stack it
+# in nn.Sequential
+class Flatten(nn.Module):
+    def forward(self, x):
+        return flatten(x)
+
+def flatten(x):
+    N = x.shape[0] # read in N, C, H, W
+    return x.view(N, -1)  # "flatten" the C * H * W values into a single vector per image
+
 
 # define our network
 # right now, this is just a fully-connected 2 layer network
 # neural network code taken from here:
 # https://towardsdatascience.com/a-simple-starter-guide-to-build-a-neural-network-3c2cf07b8d7c
-class Net(nn.Module):
+class AffineNet(nn.Module):
     def __init__(self, input_size, hidden_size, num_classes):
         super().__init__()                    # Inherited from the parent class nn.Module
         self.fc1 = nn.Linear(input_size, hidden_size)  # 1st Full-Connected Layer: 784 (input data) -> 500 (hidden node)
@@ -26,6 +38,31 @@ class Net(nn.Module):
         out = self.relu(out)
         out = self.fc2(out)
         return out
+    
+# define a simple convolutional network
+# code taken from second homework set
+class ConvNet(nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+        
+        in_channel = 3
+        channel_1 = 12
+        channel_2 = 8
+        
+        # first convolutional layer object
+        self.conv1 = torch.nn.Conv2d(in_channel, channel_1, (5,5), stride=1, padding=2, bias=True)
+        nn.init.kaiming_normal_(self.conv1.weight)
+        
+        # second convolutional layer object
+        self.conv2 = torch.nn.Conv2d(channel_1, channel_2, (3,3), stride=1, padding=1, bias=True)
+        nn.init.kaiming_normal_(self.conv2.weight)
+        
+        # fully connected layer
+        self.fc = nn.Linear(channel_2*28*28, num_classes)
+        nn.init.kaiming_normal_(self.fc.weight)
+    
+    def forward(self, x):                              # Forward pass: stacking each layer together
+        return self.fc(flatten(F.relu(self.conv2(F.relu(self.conv1(x))))))
 
 ####### SPLIT TRAINING DATASET FURTHER INTO TRAIN/VAL SPLIT #####
 # We need to further split our training dataset into training and validation sets.
@@ -57,7 +94,7 @@ def get_train_val_split(train_dataset, batch_size) :
     
     return (train_loader, validation_loader)
     
-def runExperiment(points, desired_num_points, auto_manual) :
+def runExperiment(points, desired_num_points, auto_manual, network_type, experiment_number) :
     ######### INITIALIAL TRAIN/TEST SPLIT #######
     ## Define our MNIST Datasets (Images and Labels) for training and testing
     train_dataset = dsets.MNIST(root='./data', 
@@ -87,6 +124,7 @@ def runExperiment(points, desired_num_points, auto_manual) :
     highest_accuracy = 0
     best_learning_rate = 0
     best_hidden_size =  0
+    best_num_epochs = 0
     phase = None # phase variable for run experiments
     p = 0 # count number of points being used (for code testing purposes)
 
@@ -101,24 +139,40 @@ def runExperiment(points, desired_num_points, auto_manual) :
         hidden_size = int(round(point[1]))
         batch_size = int(round(point[2]))
         num_epochs = int(round(point[3])/100)
-        if num_epochs == 0 : num_epochs = 1 # avoid using 0 epochs
+        # avoid zero value errors
+        if num_epochs == 0 : num_epochs = 1
+        if hidden_size == 0 : hidden_size = 1
+        if batch_size == 0 : batch_size = 1
+        if learning_rate == 0 : learning_rate = 0.5
         
         print('running experiment with point ',point)
+        experiment_number += 1
+        print('on experiment', experiment_number, '=>',experiment_number/(desired_num_points*3*5),' of the way there')
 
         # perform a train/val split on training data
         train_loader, validation_loader = get_train_val_split(train_dataset, batch_size)
 
         # RUN NN WITH GENERATED HYPERPARAMETERS
         # create an instance of our network
-        net = Net(input_size, hidden_size, num_classes)
-
+        if network_type == 'affine' :
+            net = AffineNet(input_size, hidden_size, num_classes)
+        elif network_type == 'conv' :
+            net = ConvNet(num_classes)
+        else :
+            print('network type not supported')
+        
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
         
         # train!
         for epoch in range(num_epochs):
             for j, (images, labels) in enumerate(train_loader):   # Load a batch of images with its (index, data, class)
-                images = Variable(images.view(-1, 28*28))         # Convert torch tensor to Variable: change image from a vector of size 784 to a matrix of 28 x 28
+                if network_type == 'affine' :
+                    images = Variable(images.view(-1, 28*28))
+                elif network_type == 'conv' :
+                    images = np.tile(images, (1,3,1,1))
+                    images = Variable(torch.from_numpy(images))   # convert to tensor object
+                
                 labels = Variable(labels)
 
                 optimizer.zero_grad()                             # Intialize the hidden weight to all zeros
@@ -138,7 +192,11 @@ def runExperiment(points, desired_num_points, auto_manual) :
         correct = 0
         total = 0
         for images, labels in validation_loader:
-            images = Variable(images.view(-1, 28*28))
+            if network_type == 'affine' :
+                images = Variable(images.view(-1, 28*28))
+            elif network_type == 'conv' :
+                images = np.tile(images, (1,3,1,1))
+                images = Variable(torch.from_numpy(images))   # convert to tensor object
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)  # Choose the best class from the output: The class with the best score
             total += labels.size(0)                    # Increment the total count
@@ -172,22 +230,40 @@ def runExperiment(points, desired_num_points, auto_manual) :
     
     # I hope this works!
     if auto_manual == 'val' :
-        return highest_accuracy
+        return highest_accuracy, experiment_number
     
     # TEST PHASE OF EXPERIMENT RUN
     # here we run the best point found on our test dataset
     # create one more instance of our network
-    net = Net(input_size, best_hidden_size, num_classes)
+    if network_type == 'affine' :
+        net = AffineNet(input_size, hidden_size, num_classes)
+    elif network_type == 'conv' :
+        net = ConvNet(num_classes)
+    else :
+        print('network type not supported')
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=best_learning_rate)
     
+    experiment_number += 1
+    print('on experiment', experiment_number, '=>',experiment_number/(desired_num_points*3*5),' of the way there')
+    
     # train one last time
     for epoch in range(best_num_epochs):
         for i, (images, labels) in enumerate(train_loader):   # Load a batch of images with its (index, data, class)
-            images = Variable(images.view(-1, 28*28))         # Convert torch tensor to Variable: change image from a vector of size 784 to a matrix of 28 x 28
             labels = Variable(labels)
+            
+            print('got here.')
+            
+            print('images before reshape',images.shape)
+            
+            if network_type == 'affine' :
+                images = Variable(images.view(-1, 28*28))
+            elif network_type == 'conv' :
+                images = np.tile(images, (1,3,1,1))
+                images = Variable(torch.from_numpy(images))   # convert to tensor object
 
+            print('images after reshape',images.shape)
             optimizer.zero_grad()                             # Intialize the hidden weight to all zeros
             outputs = net(images)                             # Forward pass: compute the output class given a image
             loss = criterion(outputs, labels)                 # Compute the loss: difference between the output class and the pre-given label
@@ -204,7 +280,11 @@ def runExperiment(points, desired_num_points, auto_manual) :
     correct = 0
     total = 0
     for images, labels in test_loader:
-        images = Variable(images.view(-1, 28*28))
+        if network_type == 'affine' :
+            images = Variable(images.view(-1, 28*28))
+        elif network_type == 'conv' :
+            images = np.tile(images, (1,3,1,1))
+            images = Variable(torch.from_numpy(images))   # convert to tensor object
         outputs = net(images)
         _, predicted = torch.max(outputs.data, 1)  # Choose the best class from the output: The class with the best score
         total += labels.size(0)                    # Increment the total count
@@ -212,6 +292,5 @@ def runExperiment(points, desired_num_points, auto_manual) :
 
     test_accuracy = int((100 * correct / total))
     if auto_manual == 'test' :
-        return test_accuracy
-
-    return test_accuracy, (best_learning_rate, best_hidden_size, best_batch_size, best_num_epochs)
+        return test_accuracy, experiment_number
+    return test_accuracy, (best_learning_rate, best_hidden_size, best_batch_size, best_num_epochs), experiment_number

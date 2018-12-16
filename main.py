@@ -2,6 +2,9 @@ from nn import runExperiment
 from poisson_disc_generalized import Grid
 from auto_manual_search import run_auto_manual
 import random
+import math
+from results_grapher import print_2d_graph_of
+from results_grapher import print_final_results
 
 # GENERATE RANDOM BATCH
 # function generates a list of tuples of size desired_num_points, each
@@ -37,8 +40,8 @@ def generate_Poisson_batch(desired_num_points, hyper_parameter_range) :
     while (desired_num_points + 10) < best_overall_num_points :
             # generate a random radius between 10 and 50 with six significant digits
             #r = random.randint(500000,2000000) / 100000
-            r = random.randint(100,200)
-            #r = 100
+            #r = random.randint(100,200)
+            r = int(hyper_parameter_range/desired_num_points)
 
             # grab the batch of poisson points with size closest to desired_num_points without going under
             best_points = None
@@ -79,50 +82,99 @@ def generate_Poisson_batch(desired_num_points, hyper_parameter_range) :
 hyper_parameter_range = 1000
 desired_num_points = 100 # how many points we can "afford" to test for
 
-# generate completely random points
-random_points = generate_random_batch(desired_num_points, hyper_parameter_range)
-
 # create a file to write results to
 results = open('results.txt','w')
 
-# run experiment with randomly generated points
-print('STARTING RANDOM EXPERIMENT')
-results.write('STARTING RANDOM EXPERIMENT\n')
-test_accuracy, best_point = runExperiment(random_points, desired_num_points, auto_manual='')
+# create a file to write general output to
+output = open('output.txt','w')
 
-# print results 
-print('RANDOM EXPERIMENT DONE.')
-results.write('RANDOM EXPERIMENT DONE.\n')
-print('test_accuracy: ' + str(test_accuracy) + '%\n')
-results.write('test_accuracy: ' + str(test_accuracy) +'%\n')
-print('best point',best_point)
-results.write('best point ' + str(best_point) + '\n')
+# choose what kind of network we'll use
+network_type = 'affine'
+print('NETWORK TYPE:',network_type)
+output.write('NETWORK TYPE:'+str(network_type)+'\n')
+results.write('NETWORK TYPE:'+str(network_type)+'\n')
 
-# generate poisson sampling
-print('STARTING POISSON EXPERIMENT')
-results.write('STARTING POISSON EXPERIMENT\n')
-poisson_points = generate_Poisson_batch(desired_num_points, hyper_parameter_range)
+experiment_number = 0
 
-# run experiment with poisson generated points
-test_accuracy, best_point = runExperiment(poisson_points, desired_num_points, auto_manual='')
+for i in range(10):
+    print('experiment number',experiment_number)
+    
+    # generate completely random points
+    random_points = generate_random_batch(desired_num_points, hyper_parameter_range)
 
-# print results 
-print('POISSON EXPERIMENT DONE.')
-results.write('POISSON EXPERIMENT DONE.\n')
-print('test_accuracy: ',test_accuracy,'%')
-results.write('test_accuracy: ' + str(test_accuracy) + '%\n')
-print('best point',best_point)
-results.write('best point ' + str(best_point) + '\n')
+    # graph points
+    print_2d_graph_of(random_points, hyper_parameter_range, hyper_parameter_range, title='Random Selection')
 
-# run experiment using auto manual method
-print('STARTING AUTO MANUAL EXPERIMENT')
-results.write('STARTING AUTO MANUAL EXPERIMENT\n')
-test_accuracy, best_point = run_auto_manual(hyper_parameter_range, desired_num_points)
+    '''
+    # run experiment with randomly generated points
+    print('STARTING RANDOM EXPERIMENT')
+    results.write('STARTING RANDOM EXPERIMENT\n')
+    output.write('STARTING RANDOM EXPERIMENT\n')
+    test_accuracy, best_point, experiment_number = runExperiment(random_points, 
+                                                                 desired_num_points, 
+                                                                 '', 
+                                                                 network_type, 
+                                                                 experiment_number)
 
-# print results
-print('AUTO MANUAL EXPERIMENT DONE')
-results.write('AUTO MANUAL EXPERIMENT DONE\n')
-print('test accuracy',test_accuracy)
-results.write('test accuracy' + str(test_accuracy) + '\n')
-print('best_point',best_point)
-results.write('best_point' + str(best_point) + '\n')
+    # print results 
+    print('RANDOM EXPERIMENT DONE.')
+    results.write('RANDOM EXPERIMENT DONE.\n')
+    output.write('RANDOM EXPERIMENT DONE.\n')
+    print('test_accuracy: ' + str(test_accuracy) + '%\n')
+    results.write('test_accuracy: ' + str(test_accuracy) +'%\n')
+    output.write('test_accuracy: ' + str(test_accuracy) +'%\n')
+    print('best point',best_point)
+    results.write('best point ' + str(best_point) + '\n')
+    output.write('best point ' + str(best_point) + '\n')
+
+'''
+    # generate poisson sampling
+    print('STARTING POISSON EXPERIMENT')
+    results.write('STARTING POISSON EXPERIMENT\n')
+    output.write('STARTING POISSON EXPERIMENT\n')
+    poisson_points = generate_Poisson_batch(desired_num_points, hyper_parameter_range)
+
+    # graph points
+    print_2d_graph_of(poisson_points, hyper_parameter_range, hyper_parameter_range, title='Poisson Selection')
+    '''
+    # run experiment with poisson generated points
+    test_accuracy, best_point, experiment_number = runExperiment(poisson_points, 
+                                                                 desired_num_points, 
+                                                                 '', network_type, 
+                                                                 experiment_number)
+    
+    # print results 
+    print('POISSON EXPERIMENT DONE.')
+    results.write('POISSON EXPERIMENT DONE.\n')
+    output.write('POISSON EXPERIMENT DONE.\n')
+    print('test_accuracy: ',test_accuracy,'%')
+    results.write('test_accuracy: ' + str(test_accuracy) + '%\n')
+    output.write('test_accuracy: ' + str(test_accuracy) + '%\n')
+    print('best point',best_point)
+    results.write('best point ' + str(best_point) + '\n')
+    output.write('best point ' + str(best_point) + '\n')
+    '''
+
+    # run experiment using auto manual method
+    print('STARTING AUTO MANUAL EXPERIMENT')
+    results.write('STARTING AUTO MANUAL EXPERIMENT\n')
+    test_accuracy, best_point, points_tested = run_auto_manual(hyper_parameter_range, 
+                                                               desired_num_points, 
+                                                               network_type, 
+                                                               experiment_number)
+    
+    # graph points
+    print_2d_graph_of(points_tested, hyper_parameter_range, hyper_parameter_range, title='Auto-Manual Selection With Widest Search')
+    '''
+    # print results
+    print('AUTO MANUAL EXPERIMENT DONE')
+    results.write('AUTO MANUAL EXPERIMENT DONE.\n')
+    output.write('AUTO MANUAL EXPERIMENT DONE.\n')
+    print('test_accuracy: ',test_accuracy)
+    results.write('test_accuracy: ' + str(test_accuracy) + '%\n')
+    output.write('test_accuracy: ' + str(test_accuracy) + '%\n')
+    print('best_point',best_point)
+    results.write('best point ' + str(best_point) + '\n')
+    output.write('best point ' + str(best_point) + '\n')
+     '''
+print_final_results('results.txt')

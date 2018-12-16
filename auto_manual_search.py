@@ -15,8 +15,9 @@ def get_perturb(best_h, k) :
     starting_p = int(best_h/(10 ** (ord_mag)))
     
     # scale starting_p using k
-    #final_p = starting_p * int(k**math.log(k))
-    final_p = starting_p ** k
+    #final_p = starting_p * k # narrowest search
+    final_p = starting_p * int(k**math.log(k)) # narrower search
+    #final_p = starting_p ** k # widest search
     
     # add small value to prevent repeat p returns
     final_p += random.randint(0,int(best_h/(10 ** (ord_mag))))
@@ -45,8 +46,9 @@ def faux_experiment(point) :
     return random.randint(0,100)
 
 # main
-def run_auto_manual(hyper_parameter_range, desired_num_points) :
+def run_auto_manual(hyper_parameter_range, desired_num_points, network_type, experiment_number) :
     printHelp = False
+    points_tested = []
     
     if printHelp : print('hyper_parameter_range',hyper_parameter_range)
     
@@ -87,9 +89,10 @@ def run_auto_manual(hyper_parameter_range, desired_num_points) :
             point = def_point(param_dict)
             
             # run experiment with point
-            # acc = faux_experiment(point)
-            # print('running experiment using automanual point',point)
-            acc = runExperiment([point], desired_num_points=1, auto_manual='val')
+            acc = faux_experiment(point)
+            #print('running experiment using automanual point',point)
+           # acc, experiment_number = runExperiment([point], 1, 'val', network_type, experiment_number)
+            points_tested.append(point) # keep track of all points for graphing purposes
             # print('accuracy returned was',acc)
             if printHelp : print('when ran with ',h,' = ',param_dict[h],' acc',acc)
             
@@ -135,6 +138,7 @@ def run_auto_manual(hyper_parameter_range, desired_num_points) :
     best_point = (lr, hs, bs, ne)
     
     # run best point found on test set
-    test_acc = runExperiment([best_point], desired_num_points=1, auto_manual='test')
+    #test_acc, experiment_number = runExperiment([best_point], 1, 'test', network_type, experiment_number)
+    test_acc = faux_experiment(point)
     
-    return test_acc, best_point
+    return test_acc, best_point, points_tested
