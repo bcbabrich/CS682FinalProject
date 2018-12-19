@@ -45,7 +45,7 @@ class ConvNet(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
         
-        in_channel = 3
+        in_channel = 1
         channel_1 = 12
         channel_2 = 8
         
@@ -123,8 +123,7 @@ def runExperiment(points, desired_num_points, auto_manual, network_type, experim
     # variables to hold best point info
     highest_accuracy = 0
     best_learning_rate = 0
-    best_hidden_size =  0
-    best_num_epochs = 0
+    best_batch_size =  0
     phase = None # phase variable for run experiments
     p = 0 # count number of points being used (for code testing purposes)
 
@@ -136,14 +135,12 @@ def runExperiment(points, desired_num_points, auto_manual, network_type, experim
         # draw next point, convert to hyperparameters
         point = points[i]
         learning_rate = point[0]/1000
-        hidden_size = int(round(point[1]))
-        batch_size = int(round(point[2]))
-        num_epochs = int(round(point[3])/100)
+        hidden_size = 100
+        batch_size = int(round(point[1]))
+        num_epochs = 5
         # avoid zero value errors
-        if num_epochs == 0 : num_epochs = 1
-        if hidden_size == 0 : hidden_size = 1
-        if batch_size == 0 : batch_size = 1
         if learning_rate == 0 : learning_rate = 0.5
+        if batch_size == 0 : batch_size = 1
         
         print('running experiment with point ',point)
         experiment_number += 1
@@ -170,7 +167,7 @@ def runExperiment(points, desired_num_points, auto_manual, network_type, experim
                 if network_type == 'affine' :
                     images = Variable(images.view(-1, 28*28))
                 elif network_type == 'conv' :
-                    images = np.tile(images, (1,3,1,1))
+                    images = np.tile(images, (1,1,1,1))
                     images = Variable(torch.from_numpy(images))   # convert to tensor object
                 
                 labels = Variable(labels)
@@ -195,7 +192,7 @@ def runExperiment(points, desired_num_points, auto_manual, network_type, experim
             if network_type == 'affine' :
                 images = Variable(images.view(-1, 28*28))
             elif network_type == 'conv' :
-                images = np.tile(images, (1,3,1,1))
+                images = np.tile(images, (1,1,1,1))
                 images = Variable(torch.from_numpy(images))   # convert to tensor object
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)  # Choose the best class from the output: The class with the best score
@@ -211,18 +208,14 @@ def runExperiment(points, desired_num_points, auto_manual, network_type, experim
             print('point number',p)
             print('accuracy',accuracy)
             print('learning_rate',learning_rate)
-            print('hidden_size',hidden_size)
             print('batch_size',batch_size)
-            print('num_epochs',num_epochs)
         
 
         # grab current best accuracy and corresponding point values
         if accuracy > highest_accuracy :
             highest_accuracy = accuracy
             best_learning_rate = learning_rate
-            best_hidden_size = hidden_size
             best_batch_size = batch_size
-            best_num_epochs = num_epochs
 
         p += 1
     
@@ -249,18 +242,18 @@ def runExperiment(points, desired_num_points, auto_manual, network_type, experim
     print('on experiment', experiment_number, '=>',experiment_number/(desired_num_points*3*5),' of the way there')
     
     # train one last time
-    for epoch in range(best_num_epochs):
+    for epoch in range(num_epochs):
         for i, (images, labels) in enumerate(train_loader):   # Load a batch of images with its (index, data, class)
             labels = Variable(labels)
             
-            print('got here.')
+            #print('got here.')
             
-            print('images before reshape',images.shape)
+            #print('images before reshape',images.shape)
             
             if network_type == 'affine' :
                 images = Variable(images.view(-1, 28*28))
             elif network_type == 'conv' :
-                images = np.tile(images, (1,3,1,1))
+                images = np.tile(images, (1,1,1,1))
                 images = Variable(torch.from_numpy(images))   # convert to tensor object
 
             print('images after reshape',images.shape)
@@ -283,7 +276,7 @@ def runExperiment(points, desired_num_points, auto_manual, network_type, experim
         if network_type == 'affine' :
             images = Variable(images.view(-1, 28*28))
         elif network_type == 'conv' :
-            images = np.tile(images, (1,3,1,1))
+            images = np.tile(images, (1,1,1,1))
             images = Variable(torch.from_numpy(images))   # convert to tensor object
         outputs = net(images)
         _, predicted = torch.max(outputs.data, 1)  # Choose the best class from the output: The class with the best score
@@ -293,4 +286,4 @@ def runExperiment(points, desired_num_points, auto_manual, network_type, experim
     test_accuracy = int((100 * correct / total))
     if auto_manual == 'test' :
         return test_accuracy, experiment_number
-    return test_accuracy, (best_learning_rate, best_hidden_size, best_batch_size, best_num_epochs), experiment_number
+    return test_accuracy, (best_learning_rate, best_batch_size), experiment_number

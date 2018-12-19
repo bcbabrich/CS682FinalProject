@@ -33,10 +33,8 @@ def get_perturb(best_h, k) :
 # IN: a dictionary mapping hyper-parameter names to int values
 # OUT: a tuplet representing a point generated using the dictionary
 def def_point(param_dict) :
-    point = (param_dict['lr'], 
-             param_dict['hs'], 
-             param_dict['bs'], 
-             param_dict['ne'])
+    point = (param_dict['lr'],
+             param_dict['bs'])
     return point
 
 # simulates an experiment run
@@ -54,20 +52,16 @@ def run_auto_manual(hyper_parameter_range, desired_num_points, network_type, exp
     
     # draw a random point from hyper-parameter space
     lr = random.randint(0,hyper_parameter_range) # learning rate 
-    hs = random.randint(0,hyper_parameter_range) # hidden size
     bs = random.randint(0,hyper_parameter_range) # batch size
-    ne = random.randint(0,hyper_parameter_range) # number of epochs
     
     # we need a dictionary and a list because we want to return
     # the hyperparameters in a predefined order but we want to
     # search through them in a random order
     param_dict = {}
     param_dict['lr'] = lr
-    param_dict['hs'] = hs
     param_dict['bs'] = bs
-    param_dict['ne'] = ne
     
-    active_parameters = ['lr','hs','bs','ne'] # predefined order
+    active_parameters = ['lr','bs'] # predefined order
     shuffle(active_parameters) # random order
     
     if printHelp : print('active_parameters (shuffled)',active_parameters)
@@ -131,11 +125,9 @@ def run_auto_manual(hyper_parameter_range, desired_num_points, network_type, exp
     
     # convert best point to hyper parameters
     lr = point[0]/1000
-    hs = int(round(point[1]))
-    bs = int(round(point[2]))
-    ne = int(round(point[3])/100)
+    bs = int(round(point[1]))
     
-    best_point = (lr, hs, bs, ne)
+    best_point = (lr, bs)
     
     # run best point found on test set
     #test_acc, experiment_number = runExperiment([best_point], 1, 'test', network_type, experiment_number)

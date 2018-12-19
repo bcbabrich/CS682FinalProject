@@ -16,12 +16,10 @@ def generate_random_batch(desired_num_points, hyper_parameter_range) :
     points = [] # initialize empty point list
     # generate desired_num_points points
     for i in range(desired_num_points):
-        lr = random.randint(0,hyper_parameter_range) # learning rate 
-        hs = random.randint(0,hyper_parameter_range) # hidden size
+        lr = random.randint(0,hyper_parameter_range) # learning rate
         bs = random.randint(0,hyper_parameter_range) # batch size
-        ne = random.randint(0,hyper_parameter_range) # number of epochs
         
-        points.append((lr,hs,bs,ne))
+        points.append((lr,bs))
     return points
 
 # GENERATE POISSON BATCH
@@ -41,22 +39,21 @@ def generate_Poisson_batch(desired_num_points, hyper_parameter_range) :
             # generate a random radius between 10 and 50 with six significant digits
             #r = random.randint(500000,2000000) / 100000
             #r = random.randint(100,200)
-            r = int(hyper_parameter_range/desired_num_points)
+            r = int(hyper_parameter_range/math.sqrt(desired_num_points))
+            
+            r = 75
 
+            #print('r',r)
             # grab the batch of poisson points with size closest to desired_num_points without going under
             best_points = None
             
             # one range copy must be passed in for each dimension
             grid = Grid(r, desired_num_points, 
                         hyper_parameter_range, 
-                        hyper_parameter_range, 
-                        hyper_parameter_range,
                         hyper_parameter_range)
 
             # Here I'm creating a seed for the sampling and then generating samples with Grid.poisson
             rand = (random.uniform(0, hyper_parameter_range), 
-                    random.uniform(0, hyper_parameter_range), 
-                    random.uniform(0, hyper_parameter_range),
                     random.uniform(0, hyper_parameter_range))
             points = grid.poisson(rand)
 
@@ -80,7 +77,7 @@ def generate_Poisson_batch(desired_num_points, hyper_parameter_range) :
 ##############################################################
 # define hyperparameters ... using "hyper-hyperparameters"
 hyper_parameter_range = 1000
-desired_num_points = 100 # how many points we can "afford" to test for
+desired_num_points = 50 # how many points we can "afford" to test for
 
 # create a file to write results to
 results = open('results.txt','w')
@@ -89,14 +86,16 @@ results = open('results.txt','w')
 output = open('output.txt','w')
 
 # choose what kind of network we'll use
-network_type = 'affine'
+network_type = 'conv'
 print('NETWORK TYPE:',network_type)
 output.write('NETWORK TYPE:'+str(network_type)+'\n')
 results.write('NETWORK TYPE:'+str(network_type)+'\n')
 
 experiment_number = 0
 
-for i in range(10):
+# main experiment loop
+'''
+for i in range(5):
     print('experiment number',experiment_number)
     
     # generate completely random points
@@ -105,7 +104,7 @@ for i in range(10):
     # graph points
     print_2d_graph_of(random_points, hyper_parameter_range, hyper_parameter_range, title='Random Selection')
 
-    '''
+    
     # run experiment with randomly generated points
     print('STARTING RANDOM EXPERIMENT')
     results.write('STARTING RANDOM EXPERIMENT\n')
@@ -127,7 +126,7 @@ for i in range(10):
     results.write('best point ' + str(best_point) + '\n')
     output.write('best point ' + str(best_point) + '\n')
 
-'''
+
     # generate poisson sampling
     print('STARTING POISSON EXPERIMENT')
     results.write('STARTING POISSON EXPERIMENT\n')
@@ -136,7 +135,7 @@ for i in range(10):
 
     # graph points
     print_2d_graph_of(poisson_points, hyper_parameter_range, hyper_parameter_range, title='Poisson Selection')
-    '''
+    
     # run experiment with poisson generated points
     test_accuracy, best_point, experiment_number = runExperiment(poisson_points, 
                                                                  desired_num_points, 
@@ -153,7 +152,7 @@ for i in range(10):
     print('best point',best_point)
     results.write('best point ' + str(best_point) + '\n')
     output.write('best point ' + str(best_point) + '\n')
-    '''
+    
 
     # run experiment using auto manual method
     print('STARTING AUTO MANUAL EXPERIMENT')
@@ -165,7 +164,7 @@ for i in range(10):
     
     # graph points
     print_2d_graph_of(points_tested, hyper_parameter_range, hyper_parameter_range, title='Auto-Manual Selection With Widest Search')
-    '''
+    
     # print results
     print('AUTO MANUAL EXPERIMENT DONE')
     results.write('AUTO MANUAL EXPERIMENT DONE.\n')
@@ -176,5 +175,7 @@ for i in range(10):
     print('best_point',best_point)
     results.write('best point ' + str(best_point) + '\n')
     output.write('best point ' + str(best_point) + '\n')
-     '''
-print_final_results('results.txt')
+'''
+results.close()
+output.close()
+print_final_results('5_affine_results_50_points.txt')
