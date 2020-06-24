@@ -73,7 +73,7 @@ def generate_Poisson_batch(desired_num_points, hyper_parameter_range) :
     return best_overall_points
 
 ##############################################################
-################# MAIN METHOD ################################
+################# BEGIN ######################################
 ##############################################################
 # define hyperparameters ... using "hyper-hyperparameters"
 hyper_parameter_range = 1000
